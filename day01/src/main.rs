@@ -1,19 +1,22 @@
-use std::iter::Iterator;
+use itertools::Itertools;
 
-fn parse_input(input: &str) -> impl Iterator<Item = impl Iterator<Item = u32> + '_> + '_ {
-    input
-        .split("\n\n")
-        .map(|s| s.lines().map(|s| s.parse().unwrap()))
+fn parse_line(s: &str) -> u32 {
+    s.parse().unwrap()
+}
+
+fn parse_input(input: &str) -> impl Iterator<Item = u32> + '_ {
+    input.split("\n\n").map(|s| s.lines().map(parse_line).sum())
 }
 
 fn part2(input: &str) -> u32 {
-    let mut cals_per_elf = parse_input(input).map(Iterator::sum).collect::<Vec<u32>>();
-    cals_per_elf.sort_unstable_by(|a, b| b.cmp(a));
-    cals_per_elf.iter().take(3).sum()
+    parse_input(input)
+        .sorted_unstable_by(|a, b| b.cmp(a)) // Descending.
+        .take(3)
+        .sum()
 }
 
 fn part1(input: &str) -> u32 {
-    parse_input(input).map(Iterator::sum).max().unwrap_or(0)
+    parse_input(input).max().unwrap_or(0)
 }
 
 fn main() {
