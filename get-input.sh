@@ -1,9 +1,13 @@
-#!/bin/sh
+#!/bin/sh -e
 
-DEST="day$(printf '%02d' "$1")/src/input.txt"
+[ -z "$1" ] && echo "Usage: ${0##*/} <day>" && exit 1
 
-curl -s --cookie "session=$(cat session)" "https://adventofcode.com/2022/day/$1/input" >"$DEST"
+DAY=$(printf '%d' "$1")
+PADDED_DAY=$(printf '%02d' "$DAY")
+DEST="day$PADDED_DAY/src/input.txt"
+
+curl -s --cookie "session=$(cat session)" "https://adventofcode.com/2022/day/$DAY/input" >"$DEST"
 
 head -3 "$DEST"
-echo '...'
+echo '[...]'
 tail -3 "$DEST"
