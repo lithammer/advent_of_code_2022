@@ -141,9 +141,32 @@ mod tests {
     const SAMPLE: &str = "A Y\nB X\nC Z\n";
 
     #[test]
-    fn test_parse_line() {
-        assert_eq!(parse_line("A Z"), (Shape::Rock, Shape::Scissor));
-        assert_eq!(parse_line("A Z"), (Shape::Rock, Outcome::Win));
+    fn test_parse_line_shape_shape() {
+        let result = SAMPLE
+            .lines()
+            .map(parse_line::<Shape, Shape>)
+            .collect::<Vec<_>>();
+        let expect = [
+            (Shape::Rock, Shape::Paper),
+            (Shape::Paper, Shape::Rock),
+            (Shape::Scissor, Shape::Scissor),
+        ];
+        assert_eq!(result, expect);
+    }
+
+    #[test]
+    fn test_parse_line_shape_outcome() {
+        let result = SAMPLE
+            .lines()
+            .map(parse_line::<Shape, Outcome>)
+            .collect::<Vec<_>>();
+        let expect = [
+            (Shape::Rock, Outcome::Draw),
+            (Shape::Paper, Outcome::Loss),
+            (Shape::Scissor, Outcome::Win),
+        ];
+
+        assert_eq!(result, expect);
     }
 
     #[test]
