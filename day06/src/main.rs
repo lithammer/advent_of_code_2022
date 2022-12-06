@@ -1,21 +1,30 @@
-use itertools::Itertools;
+/// Encode lowercase letter as bits in u32.
+fn encode_bits(b: &u8) -> u32 {
+    1 << (*b as u32 - 'a' as u32)
+}
 
-fn find_marker(s: &str, size: usize) -> usize {
-    let idx = s
-        .chars()
-        .collect_vec()
+fn is_marker(window: &[u8]) -> bool {
+    window
+        .iter()
+        .map(encode_bits)
+        .fold(0, |acc, n| acc | n)
+        .count_ones()
+        == window.len() as u32
+}
+
+fn find_marker(s: &str, size: usize) -> Option<usize> {
+    s.as_bytes()
         .windows(size)
-        .position(|v| v.iter().all_unique())
-        .unwrap();
-    idx + size
+        .position(is_marker)
+        .map(|p| p + size)
 }
 
 fn part1(input: &str) -> usize {
-    find_marker(input, 4)
+    find_marker(input, 4).unwrap()
 }
 
 fn part2(input: &str) -> usize {
-    find_marker(input, 14)
+    find_marker(input, 14).unwrap()
 }
 
 fn main() {
