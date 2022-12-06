@@ -45,9 +45,9 @@ impl std::str::FromStr for Outcome {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Shape {
-    Rock,
-    Paper,
-    Scissor,
+    Rock = 0,
+    Paper = 1,
+    Scissor = 2,
 }
 
 impl Shape {
@@ -60,16 +60,30 @@ impl Shape {
     }
 
     fn cmp(self, other: Self) -> Outcome {
-        match (self, other) {
-            (Self::Rock, Self::Scissor)
-            | (Self::Scissor, Self::Paper)
-            | (Self::Paper, Self::Rock) => Outcome::Win,
-            (Self::Scissor, Self::Rock)
-            | (Self::Paper, Self::Scissor)
-            | (Self::Rock, Self::Paper) => Outcome::Loss,
-            (Self::Rock, Self::Rock)
-            | (Self::Paper, Self::Paper)
-            | (Self::Scissor, Self::Scissor) => Outcome::Draw,
+        match ((self as i8) - (other as i8)).rem_euclid(3) {
+            0 => Outcome::Draw,
+            1 => Outcome::Win,
+            2 => Outcome::Loss,
+            _ => unreachable!(),
+        }
+    }
+
+    fn beats(self) -> Self {
+        (self as i8 - 1).rem_euclid(3).into()
+    }
+
+    fn beaten_by(self) -> Self {
+        (self as i8 + 1).rem_euclid(3).into()
+    }
+}
+
+impl From<i8> for Shape {
+    fn from(n: i8) -> Self {
+        match n {
+            0 => Shape::Rock,
+            1 => Shape::Paper,
+            2 => Shape::Scissor,
+            _ => unreachable!(),
         }
     }
 }
@@ -111,16 +125,8 @@ fn part2(input: &str) -> u32 {
         .map(parse_line::<Shape, Outcome>)
         .fold(0, |score, (a, o)| {
             let b = match o {
-                Outcome::Win => match a {
-                    Shape::Rock => Shape::Paper,
-                    Shape::Paper => Shape::Scissor,
-                    Shape::Scissor => Shape::Rock,
-                },
-                Outcome::Loss => match a {
-                    Shape::Rock => Shape::Scissor,
-                    Shape::Paper => Shape::Rock,
-                    Shape::Scissor => Shape::Paper,
-                },
+                Outcome::Win => a.beaten_by(),
+                Outcome::Loss => a.beats(),
                 Outcome::Draw => a,
             };
             score + b.score() + b.cmp(a).score()
